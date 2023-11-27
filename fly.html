@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Fly to a location based on scroll position</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<style>
+    #map {
+        position: fixed;
+        width: 50%;
+    }
+    #features {
+        width: 50%;
+        margin-left: 50%;
+        font-family: sans-serif;
+        overflow-y: scroll;
+        background-color: #fafafa;
+    }
+    section {
+        padding: 25px 50px;
+        line-height: 25px;
+        border-bottom: 1px solid #ddd;
+        opacity: 0.25;
+        font-size: 13px;
+    }
+    section.active {
+        opacity: 1;
+    }
+    section:last-child {
+        border-bottom: none;
+        margin-bottom: 200px;
+    }
+</style>
+
+<div id="map"></div>
+<div id="features">
+    <section id="St.Louis" class="active">
+        <h3>Forrest Park St.Louis</h3>
+        <p>
+            My initial memories of the United States are in St. Louis,
+            a city that once flourished but has gradually declined. 
+            I lived with my host family in the suburb of St. Charles, 
+            and every morning at 7 o'clock, I would ride in Mr.Warren's car, 
+            our history teacher, to go to high school, allowing me to enjoy the beautiful landscape 
+            there outside of the window. Forrest Park left the deepest impression on me, 
+            where the beauty of the landscape,
+            from streams to intricately arranged forests, to undulating hills,
+            could be outlined by lines, creating a picturesque silhouette.
+        </p>
+        <img src="pics/stl_forrest_park.png" width="330" height="255" alt="Forrest Park" class="center">
+    </section>
+    <section id="Seattle">
+        <h3>Seattle Lake Union</h3>
+        <p>           
+            After graduating from high school, I came to Seattle for my undergraduate studies.
+            It's a city that I both love and hate, with its continuous rainy seasons,
+            intense academic environment, and a local atmosphere of melancholy that often leads to my complaints. 
+            However, I must admit that it is the most beautiful city I have ever lived in. 
+            "There, even the grass seems to glow." I am grateful for Lake Union and Gas Works Park, 
+            as they have provided me with endless inspiration for creativity. 
+            I often find myself contemplating life while gazing at the city and the lake. 
+            Seattle is both concrete and abstract, hollow and colorful. 
+            In this map, I choose to depict Seattle using polygons and various shapes to capture its essence.
+        </p>
+        <img src="pics/Seattle_lake_Union.png" width="371.3" height="414.4" alt="Lake_union" class="center">
+    </section>
+    <section id="Philadelphia">
+        <h3>Philadelphia</h3>
+        <p>            
+            My initial impression of Philadelphia came from the TV show "It's Always Sunny in Philadelphia." 
+            Since then, in my mind, Philadelphia is a city filled with sunshine and love. 
+            Tired of the gloominess of Seattle, Penn in Philadelphia became my top choice for graduate studies.
+            Thus, I embarked on a journey to the East Coast of the United States.
+            Now, approaching my fourth month of living here, I am very happy to have gained many friends, 
+            knowledge, and a fulfilling life. However, Philadelphia is still unfamiliar to me, 
+            so I choose to depict it with blurry dots, symbolizing my yet unclear perception of the city.
+        </p>
+        <img src="pics/Pre_Phi.png" width="340" height="440" alt="Lake_union" class="center">
+    </section>
+    <section id="Salt Lake City">
+        <h3>Salt Lake City</h3>
+        <p>
+            I haven't been to Salt Lake City, but I heard it's a city surounded by mountains and lakes.
+            Thus I pick it for 3D mapping.
+            Hope I'll visit there some day.
+        </p>
+        <img src="pics/SLC3.png" width="330" height="255" alt="Lake_union" class="center">
+        <img src="pics/slc - Copy.png" width="330" height="255" alt="Lake_union" class="center">
+    </section>
+
+        <small id="citation">
+            Adapted from
+            <a href="http://www.gutenberg.org/files/2346/2346-h/2346-h.htm">Project Gutenberg</a>
+        </small>
+    </section>
+</div>
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoidHh4MTE5MCIsImEiOiJjbG9xOW9tOHgwZXRvMmtuMHNldjZ1ZmxoIn0.NSv0-gs0c4UFYW8zpoU7KQ';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-90.284599, 38.638901],
+        zoom: 13,
+        bearing: -8,
+        pitch: 20
+    });
+
+    const chapters = {
+        'St.Louis': {
+            bearing: -8,
+            center: [-90.284599, 38.638901],
+            zoom: 13,
+            pitch: 20
+        },
+        'Seattle': {
+            duration: 6000,
+            center: [-122.334951, 47.639605],
+            bearing: -15,
+            zoom: 11,
+            pitch: 0
+        },
+        'Philadelphia': {
+            bearing: 15,
+            center: [-75.193739, 39.952166],
+            zoom: 10,
+            speed: 1.5,
+            pitch: 40
+        },
+        'Salt Lake City': {
+            bearing: 90,
+            center: [-111.89111, 40.76139],
+            zoom: 8
+        },
+    };
+
+    let activeChapterName = 'baker';
+    function setActiveChapter(chapterName) {
+        if (chapterName === activeChapterName) return;
+
+        map.flyTo(chapters[chapterName]);
+
+        document.getElementById(chapterName).classList.add('active');
+        document.getElementById(activeChapterName).classList.remove('active');
+
+        activeChapterName = chapterName;
+    }
+
+    function isElementOnScreen(id) {
+        const element = document.getElementById(id);
+        const bounds = element.getBoundingClientRect();
+        return bounds.top < window.innerHeight && bounds.bottom > 0;
+    }
+
+    // On every scroll event, check which element is on screen
+    window.onscroll = () => {
+        for (const chapterName in chapters) {
+            if (isElementOnScreen(chapterName)) {
+                setActiveChapter(chapterName);
+                break;
+            }
+        }
+    };
+</script>
+
+</body>
+</html>
